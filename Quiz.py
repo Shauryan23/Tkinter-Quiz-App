@@ -4,10 +4,19 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import random
 
+score = 0
+questions_attempted = 1
+
+def show_frame(frame):
+    frame.tkraise()
+    
 def submit_form():
-    player_name = input_name.get()
+    player_name = input_name.get().split()[0]
     frame3.tkraise()
+    button = Button(frame3, text="Next", command=lambda: var.set(1))
+    button.place(x=150, y=150)
     for question in questions:
+        global questions_attempted, score
         mylabel = Label(frame3, text=question)
         mylabel.pack()
         for value,key in solutions.items():
@@ -30,14 +39,21 @@ def submit_form():
                         rb4 = Radiobutton(myoptionlabel, text=option4, variable=var2, value=option4)
                         rb4.pack()
                         button.wait_variable(var)
+                        selected_option = var2.get()
+                        if selected_option == key:
+                            score += 1
+                        questions_attempted += 1
+                        if questions_attempted == 4:
+                            button.destroy()
+                            button = Button(frame3, text="Finish", command=lambda: var.set(1))
+                            button.place(x=150, y=150)
                         mylabel.destroy()
                         myoptionlabel.destroy()
-                        
-    
-def show_frame(frame):
-    frame.tkraise()
-    
-window = tk.Tk()
+    button.destroy()
+    print(score)
+    print(player_name)
+
+window = Tk()
 
 window.state('zoomed')
 
@@ -47,55 +63,55 @@ window.iconbitmap('images\quiz.ico')
 
 window.rowconfigure(0, weight=1)
 window.columnconfigure(0, weight=1)
-frame1 = tk.Frame(window)
-frame2 = tk.Frame(window)
-frame3 = tk.Frame(window)
+frame1 = Frame(window)
+frame2 = Frame(window)
+frame3 = Frame(window)
 
 for frame in (frame1, frame2, frame3):
     frame.grid(row=0,column=0,sticky='nsew')
 
 #================== Frame 1 ========================#
 
-bg_img = tk.PhotoImage(file="images/bghome.png")
-my_label =  tk.Label(frame1, image=bg_img)
+bg_img = PhotoImage(file="images/bghome.png")
+my_label =  Label(frame1, image=bg_img)
 my_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-start_btn = tk.PhotoImage(file='images/bgFormplay.png')
-play_button = tk.Button(frame1, image=start_btn, borderwidth=0, bg="#5f4bd1", command=lambda:show_frame(frame2))
+start_btn = PhotoImage(file='images/bgFormplay.png')
+play_button = Button(frame1, image=start_btn, borderwidth=0, bg="#5f4bd1", command=lambda:show_frame(frame2))
 play_button.pack(side="bottom", pady=50)
 
-exit_btn = tk.PhotoImage(file='images/exitForm.png')
-exit_button = tk.Button(frame1, image=exit_btn, borderwidth=0, bg="#683ed2", command=window.destroy)
+exit_btn = PhotoImage(file='images/exitForm.png')
+exit_button = Button(frame1, image=exit_btn, borderwidth=0, bg="#683ed2", command=window.destroy)
 exit_button.pack(padx=30, pady=30, anchor="ne")
 
 #==================# Frame 2 #========================#
 # #4a66d3
-bg2_img = tk.PhotoImage(file='images/bgbgbg.png')
-my_label2 = tk.Label(frame2, image=bg2_img)
+bg2_img = PhotoImage(file='images/bgbgbg.png')
+my_label2 = Label(frame2, image=bg2_img)
 my_label2.place(x=0, y=0, relwidth=1, relheight=1)
 
-form = tk.PhotoImage(file="images/bgForm3.png")
-form_label = tk.Label(frame2, image=form)
+form = PhotoImage(file="images/bgForm3.png")
+form_label = Label(frame2, image=form)
 form_label.place(x=475, y=170, width=135, height=180)
 
-title = tk.Label (frame2, text= "Player Details", font= ("times new roman", 20,"bold"), bg="#3683d1", fg="#ffffff").place(x=725, y=50)
+title = Label (frame2, text= "Player Details", font= ("times new roman", 20,"bold"), bg="#3683d1", fg="#ffffff").place(x=725, y=50)
 
 # First Row
-name = tk.Label (frame2, text= "Player Name", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=175)
-input_name = tk.Entry(frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff")
+name = Label (frame2, text= "Player Name", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=175)
+input_name = Entry(frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff")
 input_name.place(x=650, y=205, width=270)
 
-form_exit_btn = tk.PhotoImage(file="images/exitForm.png")
-form_exit_button = tk.Button(frame2, image=form_exit_btn, borderwidth=0, bg="#683ed2", command=lambda:show_frame(frame1))
+form_exit_btn = PhotoImage(file="images/exitForm.png")
+form_exit_button = Button(frame2, image=form_exit_btn, borderwidth=0, bg="#683ed2", command=lambda:show_frame(frame1))
 form_exit_button.pack(padx=30, pady=30, anchor="ne")
 
 # Second Row
-mail = tk.Label (frame2, text= "Email Id", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=260)
-txt_mail = tk.Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff").place(x=650, y=290, width=270)
+mail = Label (frame2, text= "Email Id", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=260)
+txt_mail = Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff").place(x=650, y=290, width=270)
 
 # Third Row
-contact = tk.Label (frame2, text= "Contact Number", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=345)
-txt_contact = tk.Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff").place(x=650, y=375, width=270)
+contact = Label (frame2, text= "Contact Number", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=345)
+txt_contact = Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff").place(x=650, y=375, width=270)
 
 # Fourth Row
 Stream = tk.Label (frame2, text= "Stream", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=430)
@@ -105,18 +121,21 @@ combo_stream['values'] = ("Select your Stream", "Comps", "IT", "Extc", "Mechanic
 combo_stream.place(x=650, y=460, width=270)
 combo_stream.current(0)
 
-form_start_btn = tk.PhotoImage(file="images/bgFormplay.png")
+form_start_btn = PhotoImage(file="images/bgFormplay.png")
 
-form_start_button = tk.Button(frame2, image=form_start_btn, borderwidth=0, bg="#5f4bd1", command=submit_form)
+form_start_button = Button(frame2, image=form_start_btn, borderwidth=0, bg="#5f4bd1", command=submit_form)
 form_start_button.pack(side="bottom", pady=50)
 
 #============================================== FRAME 3 ==================================================#
+
+quiz_bg_img = PhotoImage(file="images/finalquizbg.png")
+img_label = Label(frame3, image=quiz_bg_img)
+img_label.place(x=0, y=0, relheight=1,relwidth=1)
 
 input_answer = StringVar()
 var = IntVar()
 var2 = StringVar()
 var2.set(' ')
-questions_attempted = 1
 
 questions = ["The ratio of width of our National flag to its length is",
              "The words 'Satyameva Jayate' inscribed below the base plate of the emblem of India are taken from",
@@ -132,10 +151,6 @@ answers = [["3:5", "2:3", "2:4", "3:4"],["Rigveda", "Satpath Brahmana", "Mundak 
             ["Karnataka", "Orissa", "Kerala", "Manipur"],["Nasik", "Ujjain", "Allahabad", "Haridwar"]]
 
 random.shuffle(questions)
-
-button = Button(frame3, text="Next", command=lambda: var.set(1))
-button.place(x=150, y=150)
-
 
 show_frame(frame1)
 
