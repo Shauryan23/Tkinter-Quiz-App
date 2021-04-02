@@ -2,11 +2,37 @@ from tkinter import *
 from tkinter import ttk
 import tkinter as tk
 from PIL import Image, ImageTk
-
+import random
 
 def submit_form():
     player_name = input_name.get()
     frame3.tkraise()
+    for question in questions:
+        mylabel = Label(frame3, text=question)
+        mylabel.pack()
+        for value,key in solutions.items():
+            if question == value:
+                for answer in answers:
+                    if key in answer:
+                        random.shuffle(answer)
+                        option1 = answer[0]
+                        option2 = answer[1]
+                        option3 = answer[2]
+                        option4 = answer[3]
+                        myoptionlabel = Label(frame3)
+                        myoptionlabel.pack(side=BOTTOM)
+                        rb1 = Radiobutton(myoptionlabel, text=option1, variable=var2, value=option1)
+                        rb1.pack()
+                        rb2 = Radiobutton(myoptionlabel, text=option2, variable=var2, value=option2)
+                        rb2.pack()
+                        rb3 = Radiobutton(myoptionlabel, text=option3, variable=var2, value=option3)
+                        rb3.pack()
+                        rb4 = Radiobutton(myoptionlabel, text=option4, variable=var2, value=option4)
+                        rb4.pack()
+                        button.wait_variable(var)
+                        mylabel.destroy()
+                        myoptionlabel.destroy()
+                        
     
 def show_frame(frame):
     frame.tkraise()
@@ -84,14 +110,33 @@ form_start_btn = tk.PhotoImage(file="images/bgFormplay.png")
 form_start_button = tk.Button(frame2, image=form_start_btn, borderwidth=0, bg="#5f4bd1", command=submit_form)
 form_start_button.pack(side="bottom", pady=50)
 
-#================== Frame 3 code
-frame3_title=  tk.Label(frame3, text='Page 3',font='times 35', bg='green')
-frame3_title.pack(fill='both', expand=True)
+#============================================== FRAME 3 ==================================================#
 
-frame3_btn = tk.Button(frame3, text='Enter',command=lambda:show_frame(frame1))
-frame3_btn.pack(fill='x',ipady=15)
+input_answer = StringVar()
+var = IntVar()
+var2 = StringVar()
+var2.set(' ')
+questions_attempted = 1
+
+questions = ["The ratio of width of our National flag to its length is",
+             "The words 'Satyameva Jayate' inscribed below the base plate of the emblem of India are taken from",
+             "'Kathakali' is a folk dance prevalent in which state",
+             "The last Mahakumbh of the 20th century was held at"]
+
+solutions = {"The ratio of width of our National flag to its length is": "2:3",
+             "The words 'Satyameva Jayate' inscribed below the base plate of the emblem of India are taken from": "Mundak Upanishad",
+             "'Kathakali' is a folk dance prevalent in which state": "Karnataka",
+             "The last Mahakumbh of the 20th century was held at": "Haridwar"}
+
+answers = [["3:5", "2:3", "2:4", "3:4"],["Rigveda", "Satpath Brahmana", "Mundak Upanishad", "Ramayana"],
+            ["Karnataka", "Orissa", "Kerala", "Manipur"],["Nasik", "Ujjain", "Allahabad", "Haridwar"]]
+
+random.shuffle(questions)
+
+button = Button(frame3, text="Next", command=lambda: var.set(1))
+button.place(x=150, y=150)
+
 
 show_frame(frame1)
 
 window.mainloop()
-
