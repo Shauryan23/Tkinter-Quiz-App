@@ -1,22 +1,51 @@
 from tkinter import *
 from tkinter import ttk
-import tkinter as tk
-from PIL import Image, ImageTk
+from tkinter import messagebox
 import random
+import sqlite3
 
-score = 0
+game_score = 0
 questions_attempted = 1
+player_name = ""
+
+#************** DATABASE DATABASE DATABASE **************#
+conn = sqlite3.connect('Database.db')
+
+c = conn.cursor()
+
+# c.execute("""CREATE TABLE QuizData(
+#             name text,
+#             score number
+#             )
+#             """)
+
+def get_player_name(player_name):
+    c.execute("SELECT * FROM QuizData WHERE name=:name", {'name':player_name})
+    return c.fetchone()
+
+def insert_player(player_name, game_score):
+    with conn:
+        c.execute("INSERT INTO quizData VALUES (:name, :score)", {'name': player_name, 'score': game_score})
+
+def update_score(player_name, game_score):
+    with conn:
+        c.execute("""UPDATE QuizData SET score = :score
+                    WHERE name = :name""",
+                  {'name': player_name, 'score': game_score})
+
+#************** DATABASE DATABASE DATABASE **************#
 
 def show_frame(frame):
     frame.tkraise()
     
 def submit_form():
+    global player_name, questions_attempted, game_score
     player_name = input_name.get().split()[0]
+    player_name = player_name.lower()
     frame3.tkraise()
     button = Button(frame3, text="Next", command=lambda: var.set(1))
     button.place(x=150, y=150)
     for question in questions:
-        global questions_attempted, score
         mylabel = Label(frame3, text=question)
         mylabel.pack()
         for value,key in solutions.items():
@@ -30,18 +59,14 @@ def submit_form():
                         option4 = answer[3]
                         myoptionlabel = Label(frame3)
                         myoptionlabel.pack(side=BOTTOM)
-                        rb1 = Radiobutton(myoptionlabel, text=option1, variable=var2, value=option1)
-                        rb1.pack()
-                        rb2 = Radiobutton(myoptionlabel, text=option2, variable=var2, value=option2)
-                        rb2.pack()
-                        rb3 = Radiobutton(myoptionlabel, text=option3, variable=var2, value=option3)
-                        rb3.pack()
-                        rb4 = Radiobutton(myoptionlabel, text=option4, variable=var2, value=option4)
-                        rb4.pack()
+                        Radiobutton(myoptionlabel, text=option1, variable=var2, value=option1).pack()
+                        Radiobutton(myoptionlabel, text=option2, variable=var2, value=option2).pack()
+                        Radiobutton(myoptionlabel, text=option3, variable=var2, value=option3).pack()
+                        Radiobutton(myoptionlabel, text=option4, variable=var2, value=option4).pack()
                         button.wait_variable(var)
                         selected_option = var2.get()
                         if selected_option == key:
-                            score += 1
+                            game_score += 1
                         questions_attempted += 1
                         if questions_attempted == 4:
                             button.destroy()
@@ -50,8 +75,17 @@ def submit_form():
                         mylabel.destroy()
                         myoptionlabel.destroy()
     button.destroy()
-    print(score)
-    print(player_name)
+    messagebox.showinfo("    Quiz Game", "Quiz Has Finished")
+    data_handling()
+
+def data_handling():
+    global player_name
+    if(get_player_name(player_name) == None):
+        insert_player(player_name, game_score)
+    else:
+        fetched_player = get_player_name(player_name)
+        if(fetched_player[1] < game_score):
+            update_score(player_name, game_score)
 
 window = Tk()
 
@@ -70,7 +104,7 @@ frame3 = Frame(window)
 for frame in (frame1, frame2, frame3):
     frame.grid(row=0,column=0,sticky='nsew')
 
-#================== Frame 1 ========================#
+#============================================== FRAME 1 ==================================================#
 
 bg_img = PhotoImage(file="images/bghome.png")
 my_label =  Label(frame1, image=bg_img)
@@ -84,7 +118,7 @@ exit_btn = PhotoImage(file='images/exitForm.png')
 exit_button = Button(frame1, image=exit_btn, borderwidth=0, bg="#683ed2", command=window.destroy)
 exit_button.pack(padx=30, pady=30, anchor="ne")
 
-#==================# Frame 2 #========================#
+#============================================== FRAME 2 ==================================================#
 # #4a66d3
 bg2_img = PhotoImage(file='images/bgbgbg.png')
 my_label2 = Label(frame2, image=bg2_img)
@@ -98,7 +132,8 @@ title = Label (frame2, text= "Player Details", font= ("times new roman", 20,"bol
 
 # First Row
 name = Label (frame2, text= "Player Name", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=175)
-input_name = Entry(frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff")
+input_name = Entry(frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5)
+input_name.config(highlightbackground="#74159d", highlightcolor="#74159d")
 input_name.place(x=650, y=205, width=270)
 
 form_exit_btn = PhotoImage(file="images/exitForm.png")
@@ -107,14 +142,18 @@ form_exit_button.pack(padx=30, pady=30, anchor="ne")
 
 # Second Row
 mail = Label (frame2, text= "Email Id", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=260)
-txt_mail = Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff").place(x=650, y=290, width=270)
+txt_mail = Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5)
+txt_mail.config(highlightbackground="#74159d", highlightcolor="#74159d")
+txt_mail.place(x=650, y=290, width=270)
 
 # Third Row
 contact = Label (frame2, text= "Contact Number", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=345)
-txt_contact = Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff").place(x=650, y=375, width=270)
+txt_contact = Entry (frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5)
+txt_contact.config(highlightbackground="#74159d", highlightcolor="#74159d")
+txt_contact.place(x=650, y=375, width=270)
 
 # Fourth Row
-Stream = tk.Label (frame2, text= "Stream", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff").place(x=650, y=430)
+Stream = Label (frame2, text= "Stream", font= ("times new roman", 14,"bold"),bg ="#4273d2", fg="#ffffff", highlightthickness=5).place(x=650, y=430)
 
 combo_stream = ttk.Combobox (frame2, font=("times new roman", 14), state='readonly', justify=CENTER)
 combo_stream['values'] = ("Select your Stream", "Comps", "IT", "Extc", "Mechanical", "Civil")
@@ -155,3 +194,5 @@ random.shuffle(questions)
 show_frame(frame1)
 
 window.mainloop()
+
+conn.close()
