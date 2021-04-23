@@ -3,23 +3,45 @@ from tkinter import ttk
 from tkinter import messagebox
 import random
 import sqlite3
+import threading
 
 game_score = 0
 questions_attempted = 1
 player_name = ""
-score_txt=""
+qualifying_score = 2
 
-#***************************************** DATABASE DATABASE DATABASE *****************************************#
+#*********************** TIMER **************************#
+
+time_in_sec = 20
+
+def timer():
+    global time_in_sec, mylabel, button, myoptionlabel
+    if(time_in_sec>0):
+        minutes, seconds = divmod(time_in_sec, 60)
+        time_left = str(minutes).zfill(2) + ":" + str(seconds).zfill(2)
+        timer_label.config(text=time_left)
+        time_in_sec -= 1
+        timer_label.after(1000, timer)
+    else:
+        mylabel.destroy()
+        button.destroy()
+        myoptionlabel.destroy()
+        completed_session()
+
+
+#*********************** TIMER **************************#
+
+#************** DATABASE DATABASE DATABASE **************#
 
 conn = sqlite3.connect('Database.db')
 
 c = conn.cursor()
 
-c.execute("""CREATE TABLE QuizData(
-            name text,
-            score number
-            )
-            """)
+# c.execute("""CREATE TABLE QuizData(
+#             name text,
+#             score number
+#             )
+#             """)
 
 def get_player_name(player_name):
     c.execute("SELECT * FROM QuizData WHERE name=:name", {'name':player_name})
@@ -35,21 +57,27 @@ def update_score(player_name, game_score):
                     WHERE name = :name""",
                   {'name': player_name, 'score': game_score})
 
-#***************************************** DATABASE DATABASE DATABASE *****************************************#
+#************** DATABASE DATABASE DATABASE **************#
 
 def show_frame(frame):
     frame.tkraise()
     
 def submit_form():
-    global player_name, questions_attempted, game_score
+    global player_name
     player_name = input_name.get().split()[0]
     player_name = player_name.lower()
     frame3.tkraise()
+    timer()
+    load_questions()
+
+
+def load_questions():
+    global questions_attempted, game_score, mylabel, button, myoptionlabel
     button = Button(frame3, image=next_btn, cursor = "hand2", borderwidth=0, bg="black", command=lambda: var.set(1))
     button.place(x=700, y= 600)
     for question in questions:
         mylabel = Label(frame3, text=question, anchor=CENTER, font =("times new roman", 18, "bold"), bg= "black", fg= "white", wraplength= 800)
-        mylabel.place(x=485 , y=150)
+        mylabel.place(x=485, y=225)
         for value,key in solutions.items():
             if question == value:
                 for answer in answers:
@@ -60,7 +88,7 @@ def submit_form():
                         option3 = answer[2]
                         option4 = answer[3]
                         myoptionlabel = Label(frame3, bg="black")
-                        myoptionlabel.place(x=700, y=300)
+                        myoptionlabel.place(x=700, y=330)
                         Radiobutton(myoptionlabel, text=option1, font =("times new roman", 18, "bold"), bg="black", fg="white", variable=var2, value=option1, selectcolor="#000000").pack(pady=5, anchor="w")
                         Radiobutton(myoptionlabel, text=option2, font =("times new roman", 18, "bold"), bg="black", fg="white", variable=var2, value=option2, selectcolor="#000000").pack(pady=5, anchor="w")
                         Radiobutton(myoptionlabel, text=option3, font =("times new roman", 18, "bold"), bg="black", fg="white", variable=var2, value=option3, selectcolor="#000000").pack(pady=5, anchor="w")
@@ -77,9 +105,51 @@ def submit_form():
                         mylabel.destroy()
                         myoptionlabel.destroy()
     button.destroy()
+    completed_session()
+
+def completed_session():
     data_handling()
-    messagebox.showinfo("    Quiz Game", "Quiz Has Finished\n{} you have scored {} out of 5".format(player_name, game_score))
+    messagebox.showinfo("    Quiz Game", "Quiz Has Finished\n{} you have scored {} out of 4".format(player_name, game_score))
+    global qualify_bg, qualify_ok_btn, qualify_mssg, qualify_fail_mssg
+    if(game_score >= qualifying_score):
+        top = Toplevel()
+        top.geometry("800x450")
+        qualify_bg_label = Label(top, image=qualify_bg)
+        qualify_bg_label.pack()
+        qualify_mssg_label = Label(top, image=qualify_mssg, bg="#4e62d2")
+        qualify_mssg_label.place(x=155, y=40)
+        qualify_ok_button = Button(top, image=qualify_ok_btn, cursor="hand2", borderwidth=0, bg="#436fd2", command=top.destroy)
+        qualify_ok_button.place(x=320, y=350)
+    else:
+        top = Toplevel()
+        top.geometry("800x450")
+        qualify_bg_label = Label(top, image=qualify_bg)
+        qualify_bg_label.pack()
+        qualify_mssg_label = Label(top, image=qualify_fail_mssg, bg="#4e62d2")
+        qualify_mssg_label.place(x=155, y=40)
+        qualify_ok_button = Button(top, image=qualify_ok_btn, cursor="hand2", borderwidth=0, bg="#436fd2", command=top.destroy)
+        qualify_ok_button.place(x=320, y=350)
     show_frame(frame4)
+
+
+#qualifying_page(game_score)
+# def open_won_toplevel():
+#     global qualify_bg
+#     top = Toplevel()
+#     qualify_bg = PhotoImage(file="images/qualify_background.png")
+#     qualify_bg_label = Label(top, image=qualify_bg).pack()
+
+# def open_lost_toplevel():
+#     global qualify_bg
+#     top = Toplevel()
+#     qualify_bg = PhotoImage(file="images/qualify_background.png")
+#     qualify_bg_label = Label(top, image=qualify_bg).pack()
+
+# def qualifying_page(game_score):
+#     if(game_score >= qualifying_score):
+#         open_won_toplevel
+#     else:
+#         open_lost_toplevel
 
 def data_handling():
     global player_name
@@ -94,17 +164,16 @@ def load_highscores(frame):
     frame.tkraise()
     c.execute("""SELECT * FROM 'QuizData'
             ORDER BY score DESC
-            LIMIT 0, 4;""")
+            LIMIT 0, 3;""")
     highscores = c.fetchall()
 
     const_txt = "NAME" + "\t\t\t\t" + "SCORE"
-
     txt_label = Label(frame5, font =("Courier New", 20,"bold"), text=const_txt, pady=25, bg="#f8f8f8")
     txt_label.place(x=475, y=75)
     
     disty = 225
 
-    for x in range(0, 4):
+    for x in range(0, 3):
         curr_player = highscores[x][0]
         curr_score = highscores[x][1]
         
@@ -115,6 +184,13 @@ def load_highscores(frame):
         userscore_to_load_label.place(x=1000, y=disty)
 
         disty += 60
+
+def refresh_session():
+    global player_name, game_score, time_in_sec
+    player_name = ""
+    game_score = 0
+    time_in_sec = 20
+    show_frame(frame1)
 
 window = Tk()
 
@@ -150,7 +226,7 @@ exit_button = Button(frame1, image=exit_btn, cursor = "hand2", borderwidth=0, bg
 exit_button.pack(padx=30, pady=30, anchor="ne")
 
 #============================================== FRAME 2 ==================================================#
-
+# #4a66d3
 bg2_img = PhotoImage(file='images/bgbgbg.png')
 my_label2 = Label(frame2, image=bg2_img)
 my_label2.place(x=0, y=0, relwidth=1, relheight=1)
@@ -206,6 +282,19 @@ img_label.place(x=0, y=0, relheight=1,relwidth=1)
 next_btn = PhotoImage(file="images/nextF3.png")
 finish_btn = PhotoImage(file="images/finishF2.png")
 
+# Label for Questions
+mylabel = Label()
+
+# Label for Options
+myoptionlabel = Label()
+
+# Button for Next/Finish
+button = Button()
+
+# Label for Timer
+timer_label = Label(frame3)
+timer_label.place(x=900, y=40)
+
 input_answer = StringVar()
 var = IntVar()
 var2 = StringVar()
@@ -234,7 +323,7 @@ score_img_label = Label(frame4, image=score_bg_img, width=1920)
 score_img_label.place(x=0, y=0, relheight=1,relwidth=1)
 
 bact_to_home_btn = PhotoImage(file="images/backtohome.png")
-bact_to_home_button = Button(frame4, image=bact_to_home_btn, cursor = "hand2", borderwidth=0, command=lambda:show_frame(frame1))
+bact_to_home_button = Button(frame4, image=bact_to_home_btn, cursor = "hand2", borderwidth=0, command=refresh_session)
 bact_to_home_button.place(x=700 , y=250)
 
 view_highscore_btn = PhotoImage(file="images/Highscore.png")
@@ -248,8 +337,15 @@ last_page_bg_label = Label(frame5, image=last_page_bg, width=1920)
 last_page_bg_label.place(x=0, y=0, relheight=1,relwidth=1)
 
 highscore_exit_btn = PhotoImage(file="images/bg1exit.png")
-highscore_exit_button = Button(frame5, image=highscore_exit_btn, cursor = "hand2", borderwidth=0, bg="white", command=lambda:show_frame(frame1))
+highscore_exit_button = Button(frame5, image=highscore_exit_btn, cursor = "hand2", borderwidth=0, bg="white", command=refresh_session)
 highscore_exit_button.pack(padx=30, pady=30, anchor="ne")
+
+#============================================== FRAME 6 ==================================================#
+
+qualify_bg = PhotoImage(file="images/qualify_background.png")
+qualify_ok_btn = PhotoImage(file="images/qualify_btn7.png")
+qualify_mssg = PhotoImage(file="images/qualify_mssg.png")
+qualify_fail_mssg = PhotoImage(file="images/qualify_failmssg.png")
 
 show_frame(frame1)
 
