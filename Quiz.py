@@ -70,7 +70,6 @@ def submit_form():
     timer()
     load_questions()
 
-
 def load_questions():
     global questions_attempted, game_score, mylabel, button, myoptionlabel
     button = Button(frame3, image=next_btn, cursor = "hand2", borderwidth=0, bg="black", command=lambda: var.set(1))
@@ -131,26 +130,6 @@ def completed_session():
         qualify_ok_button.place(x=320, y=350)
     show_frame(frame4)
 
-
-#qualifying_page(game_score)
-# def open_won_toplevel():
-#     global qualify_bg
-#     top = Toplevel()
-#     qualify_bg = PhotoImage(file="images/qualify_background.png")
-#     qualify_bg_label = Label(top, image=qualify_bg).pack()
-
-# def open_lost_toplevel():
-#     global qualify_bg
-#     top = Toplevel()
-#     qualify_bg = PhotoImage(file="images/qualify_background.png")
-#     qualify_bg_label = Label(top, image=qualify_bg).pack()
-
-# def qualifying_page(game_score):
-#     if(game_score >= qualifying_score):
-#         open_won_toplevel
-#     else:
-#         open_lost_toplevel
-
 def data_handling():
     global player_name
     if(get_player_name(player_name) == None):
@@ -183,14 +162,59 @@ def load_highscores(frame):
         userscore_to_load_label = Label(frame5, font =("Courier New", 18,"bold"), text=str(curr_score), pady=10, bg="#f8f8f8")
         userscore_to_load_label.place(x=1000, y=disty)
 
-        disty += 60
+        disty += 90
 
 def refresh_session():
     global player_name, game_score, time_in_sec
     player_name = ""
+    var2.set(' ')
     game_score = 0
     time_in_sec = 20
     show_frame(frame1)
+
+def add_questions():
+    global input_question, input_options, input_correct_option
+    top = Toplevel()
+    top.geometry("1100x650")
+    my_canvas = Canvas(top, width=1100, height=650)
+    my_canvas.pack(fill="both", expand=True)
+    my_canvas.create_image(0, 0, image=add_questions_bg, anchor="nw")
+    my_canvas.create_text(153, 70, text= "Add Question :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
+    input_question = Entry(top)
+    my_canvas.create_window(150, 100, window=input_question, width=750, anchor="nw")
+    input_question.config(font= ("Helvetica", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5, highlightbackground="#74159d", highlightcolor="#74159d")
+    #Options
+    my_canvas.create_text(153, 180, text= "Enter Options :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
+    input_options = Entry(top)
+    input_options.config( font= ("Helvetica", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5, highlightbackground="#74159d", highlightcolor="#74159d")
+    my_canvas.create_window(150, 210, window=input_options, width=750, anchor="nw")
+    #Guide
+    my_canvas.create_text(153, 255, text= "**Enter 4 Options Above", font= ("Helvetica", 10,"bold"), fill="#e31313", anchor="nw")
+    my_canvas.create_text(153, 273, text= "**Enter Comma Seperated values", font= ("Helvetica", 10,"bold"), fill="#e31313", anchor="nw")
+    #Correct Answers
+    my_canvas.create_text(153, 330, text= "Correct Option :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
+    input_correct_option = Entry(top)
+    input_correct_option.config( font= ("Helvetica", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5, highlightbackground="#74159d", highlightcolor="#74159d")
+    my_canvas.create_window(153, 360, window=input_correct_option,width=750, anchor="nw")
+    my_canvas.create_text(153, 405, text= "*ENTER THE CORRECT ANSWER ABOVE(Note: It Must Be Present In The Enter Options Row **CASE SENSITIVE ", font= ("Helvetica", 10,"bold"), fill="#e31313", anchor="nw")
+    #Submit Button
+    submit_btn = Button(my_canvas, image=submit_btn_img, border=0, relief=FLAT, bg="#5f4bd1", cursor="hand2", command=handle_questions_options)
+    submit_btn_window = my_canvas.create_window(450, 500, anchor="nw", window=submit_btn)
+    #Exit Button
+    form_exit_button = Button(my_canvas, image=form_exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2")
+    exit_btn_window = my_canvas.create_window(1025, 10, anchor="nw", window=form_exit_button)
+
+def handle_questions_options():
+    global get_question, get_options, get_correct_option
+    get_question = input_question.get()
+    get_options = input_options.get().split(",")
+    for option in get_options:
+        formatted_option = option.strip()
+        formatted_options_list.append(formatted_option)
+    get_correct_option = input_correct_option.get()
+    get_correct_option = get_correct_option.strip()
+    print(get_correct_option)
+
 
 window = Tk()
 
@@ -292,8 +316,8 @@ myoptionlabel = Label()
 button = Button()
 
 # Label for Timer
-timer_label = Label(frame3)
-timer_label.place(x=900, y=40)
+timer_label = Label(frame3, font="times 50", fg="#FFFFFF", bg="#000000")
+timer_label.place(x=1200, y=80)
 
 input_answer = StringVar()
 var = IntVar()
@@ -346,6 +370,22 @@ qualify_bg = PhotoImage(file="images/qualify_background.png")
 qualify_ok_btn = PhotoImage(file="images/qualify_btn7.png")
 qualify_mssg = PhotoImage(file="images/qualify_mssg.png")
 qualify_fail_mssg = PhotoImage(file="images/qualify_failmssg.png")
+
+#============================================== ADD QUESTION CANVAS ==================================================#
+add_questions_bg = PhotoImage(file="images/addQuestionbg.png")
+submit_btn_img = PhotoImage(file="images/submit4.png")
+
+my_canvas = Canvas()
+
+get_question = ""
+get_options = ""
+get_correct_option = ""
+
+input_question = Entry()
+input_options = Entry()
+input_correct_option = Entry()
+
+formatted_options_list = []
 
 show_frame(frame1)
 
