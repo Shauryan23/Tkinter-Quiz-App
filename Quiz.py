@@ -176,7 +176,7 @@ def add_questions():
     global input_question, input_options, input_correct_option
     top = Toplevel()
     top.geometry("1100x650")
-    my_canvas = Canvas(top, width=1100, height=650)
+    my_canvas = Canvas(top)
     my_canvas.pack(fill="both", expand=True)
     my_canvas.create_image(0, 0, image=add_questions_bg, anchor="nw")
     my_canvas.create_text(153, 70, text= "Add Question :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
@@ -201,19 +201,52 @@ def add_questions():
     submit_btn = Button(my_canvas, image=submit_btn_img, border=0, relief=FLAT, bg="#5f4bd1", cursor="hand2", command=handle_questions_options)
     submit_btn_window = my_canvas.create_window(450, 500, anchor="nw", window=submit_btn)
     #Exit Button
-    form_exit_button = Button(my_canvas, image=form_exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2")
+    form_exit_button = Button(my_canvas, image=form_exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2", command=top.destroy)
     exit_btn_window = my_canvas.create_window(1025, 10, anchor="nw", window=form_exit_button)
 
 def handle_questions_options():
     global get_question, get_options, get_correct_option
     get_question = input_question.get()
     get_options = input_options.get().split(",")
+    get_correct_option = input_correct_option.get()
+    temp_error_evaluator = validate_questions_options_data()
+    if(temp_error_evaluator):
+        submit_btn.wait_variable(err_var)
+        handle_questions_options()
     for option in get_options:
         formatted_option = option.strip()
         formatted_options_list.append(formatted_option)
-    get_correct_option = input_correct_option.get()
     get_correct_option = get_correct_option.strip()
-    print(get_correct_option)
+    
+def validate_questions_options_data():
+    global get_options, get_correct_option
+
+    def error_validator():
+        top2.destroy()
+        return True
+
+    if(len(get_options) != 4):
+        top2 = Toplevel()
+        top2.geometry("750x325")
+        error_canvas = Canvas(top2)
+        error_canvas.pack(fill="both", expand=True)
+        error_canvas.create_image(50, 60, image=error_img, anchor="nw")
+        error_canvas.create_text(120, 70, text= "Please Add Correct Number Of Options As Instructed", font= ("Helvetica", 18,"bold"), fill="#e31313", anchor="nw")
+        ok_button = Button(error_canvas, image=ok_btn, cursor = "hand2", borderwidth=0, command=error_validator)
+        ok_btn_window = error_canvas.create_window(315, 220, anchor="nw", window=ok_button)
+    
+    elif(get_correct_option not in get_options):
+        top2 = Toplevel()
+        top2.geometry("925x325")
+        error_canvas = Canvas(top2)
+        error_canvas.pack(fill="both", expand=True)
+        error_canvas.create_image(50, 60, image=error_img, anchor="nw")
+        error_canvas.create_text(120, 70, text= "Please Check If Correct Option Is Present In Both The Input Rows", font= ("Helvetica", 18,"bold"), fill="#e31313", anchor="nw")
+        ok_button = Button(error_canvas, image=ok_btn, cursor = "hand2", borderwidth=0, command=error_validator)
+        ok_btn_window = error_canvas.create_window(375, 220, anchor="nw", window=ok_button)
+
+    
+    
 
 
 window = Tk()
@@ -249,6 +282,12 @@ exit_btn = PhotoImage(file='images/exitForm.png')
 exit_button = Button(frame1, image=exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2", command=window.destroy)
 exit_button.pack(padx=30, pady=30, anchor="ne")
 
+add_questions_btn = PhotoImage(file="images/addQuestionsbtn10.png")
+add_questions_button = Button(frame1, image=add_questions_btn, cursor = "hand2", borderwidth=0, bg="#9400d4", command=add_questions)
+add_questions_button.place(x=1253, y=705)
+
+error_img = PhotoImage(file="images/error2.png")
+ok_btn = PhotoImage(file="images/okbtn.png")
 #============================================== FRAME 2 ==================================================#
 # #4a66d3
 bg2_img = PhotoImage(file='images/bgbgbg.png')
@@ -373,9 +412,11 @@ qualify_fail_mssg = PhotoImage(file="images/qualify_failmssg.png")
 
 #============================================== ADD QUESTION CANVAS ==================================================#
 add_questions_bg = PhotoImage(file="images/addQuestionbg.png")
-submit_btn_img = PhotoImage(file="images/submit4.png")
+submit_btn_img = PhotoImage(file="images/submitbtn.png")
 
-my_canvas = Canvas()
+submit_btn = Button()
+
+my_canvas = Canvas(width=1100, height=650)
 
 get_question = ""
 get_options = ""
@@ -386,6 +427,8 @@ input_options = Entry()
 input_correct_option = Entry()
 
 formatted_options_list = []
+
+err_var = 0
 
 show_frame(frame1)
 
