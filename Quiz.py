@@ -209,14 +209,15 @@ def handle_questions_options():
     get_question = input_question.get()
     get_options = input_options.get().split(",")
     get_correct_option = input_correct_option.get()
-    temp_error_evaluator = validate_questions_options_data()
-    if(temp_error_evaluator):
-        submit_btn.wait_variable(err_var)
-        handle_questions_options()
     for option in get_options:
         formatted_option = option.strip()
         formatted_options_list.append(formatted_option)
     get_correct_option = get_correct_option.strip()
+
+    temp_error_evaluator = validate_questions_options_data()
+    if(temp_error_evaluator):
+        submit_btn.wait_variable(err_var)
+        handle_questions_options()
     
 def validate_questions_options_data():
     global get_options, get_correct_option
@@ -235,7 +236,7 @@ def validate_questions_options_data():
         ok_button = Button(error_canvas, image=ok_btn, cursor = "hand2", borderwidth=0, command=error_validator)
         ok_btn_window = error_canvas.create_window(315, 220, anchor="nw", window=ok_button)
     
-    elif(get_correct_option not in get_options):
+    elif(get_correct_option not in formatted_options_list):
         top2 = Toplevel()
         top2.geometry("925x325")
         error_canvas = Canvas(top2)
@@ -244,9 +245,6 @@ def validate_questions_options_data():
         error_canvas.create_text(120, 70, text= "Please Check If Correct Option Is Present In Both The Input Rows", font= ("Helvetica", 18,"bold"), fill="#e31313", anchor="nw")
         ok_button = Button(error_canvas, image=ok_btn, cursor = "hand2", borderwidth=0, command=error_validator)
         ok_btn_window = error_canvas.create_window(375, 220, anchor="nw", window=ok_button)
-
-    
-    
 
 
 window = Tk()
