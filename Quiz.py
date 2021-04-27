@@ -57,6 +57,23 @@ def update_score(player_name, game_score):
                     WHERE name = :name""",
                   {'name': player_name, 'score': game_score})
 
+
+# c.execute("""CREATE TABLE QuestionsData(
+#             questions text,
+#             options text,
+#             correct_option text
+#             )
+#             """)
+
+def insert_question_options(question, options, correct_option):
+    with conn:
+        c.execute("INSERT INTO QuestionsData VALUES (:db_question, :db_options, :db_correct_option)", {'db_question':question, 'db_options':options, 'db_correct_option':correct_option})
+
+def load_questions_options():
+    with conn:
+        c.execute("SELECT * FROM QuestionsData")
+        return c.fetchall()
+
 #************** DATABASE DATABASE DATABASE **************#
 
 def show_frame(frame):
@@ -173,19 +190,19 @@ def refresh_session():
     show_frame(frame1)
 
 def add_questions():
-    global input_question, input_options, input_correct_option
-    top = Toplevel()
-    top.geometry("1100x650")
-    my_canvas = Canvas(top)
+    global input_question, input_options, input_correct_option, my_canvas
+    top3 = Toplevel()
+    top3.geometry("1100x650")
+    my_canvas = Canvas(top3)
     my_canvas.pack(fill="both", expand=True)
     my_canvas.create_image(0, 0, image=add_questions_bg, anchor="nw")
     my_canvas.create_text(153, 70, text= "Add Question :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
-    input_question = Entry(top)
+    input_question = Entry(top3)
     my_canvas.create_window(150, 100, window=input_question, width=750, anchor="nw")
     input_question.config(font= ("Helvetica", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5, highlightbackground="#74159d", highlightcolor="#74159d")
     #Options
     my_canvas.create_text(153, 180, text= "Enter Options :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
-    input_options = Entry(top)
+    input_options = Entry(top3)
     input_options.config( font= ("Helvetica", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5, highlightbackground="#74159d", highlightcolor="#74159d")
     my_canvas.create_window(150, 210, window=input_options, width=750, anchor="nw")
     #Guide
@@ -193,19 +210,19 @@ def add_questions():
     my_canvas.create_text(153, 273, text= "**Enter Comma Seperated values", font= ("Helvetica", 10,"bold"), fill="#e31313", anchor="nw")
     #Correct Answers
     my_canvas.create_text(153, 330, text= "Correct Option :", font= ("Helvetica", 18,"bold"), fill="#ffffff", anchor="nw")
-    input_correct_option = Entry(top)
+    input_correct_option = Entry(top3)
     input_correct_option.config( font= ("Helvetica", 14),bg="#8319d3", fg="#ffffff", highlightthickness=5, highlightbackground="#74159d", highlightcolor="#74159d")
     my_canvas.create_window(153, 360, window=input_correct_option,width=750, anchor="nw")
     my_canvas.create_text(153, 405, text= "*ENTER THE CORRECT ANSWER ABOVE(Note: It Must Be Present In The Enter Options Row **CASE SENSITIVE ", font= ("Helvetica", 10,"bold"), fill="#e31313", anchor="nw")
     #Submit Button
     submit_btn = Button(my_canvas, image=submit_btn_img, border=0, relief=FLAT, bg="#5f4bd1", cursor="hand2", command=handle_questions_options)
-    submit_btn_window = my_canvas.create_window(450, 500, anchor="nw", window=submit_btn)
+    submit_btn_window = my_canvas.create_window(450, 540, anchor="nw", window=submit_btn)
     #Exit Button
-    form_exit_button = Button(my_canvas, image=form_exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2", command=top.destroy)
+    form_exit_button = Button(my_canvas, image=form_exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2", command=top3.destroy)
     exit_btn_window = my_canvas.create_window(1025, 10, anchor="nw", window=form_exit_button)
 
 def handle_questions_options():
-    global get_question, get_options, get_correct_option
+    global get_question, get_options, get_correct_option, my_canvas#, questions, answers, solutions
     get_question = input_question.get()
     get_options = input_options.get().split(",")
     get_correct_option = input_correct_option.get()
@@ -219,10 +236,16 @@ def handle_questions_options():
         submit_btn.wait_variable(err_var)
         handle_questions_options()
     
+    #CONTINUE FROM HERE - TO FORWARD THE DATA TO RESPECTIVE LISTS AND DICTIONARY AND CLEAR THE PREVIOUS FETCHED DATA
+    get_options = repr(get_options)
+    insert_question_options(get_question, get_options, get_correct_option)
+    my_canvas.create_text(225, 460, text="Question Added Successfully!!!", font= ("Helvetica", 30,"bold"), fill="#21fc0d", anchor="nw")
+    
 def validate_questions_options_data():
     global get_options, get_correct_option
 
     def error_validator():
+        err_var.set(1)
         top2.destroy()
         return True
 
@@ -246,6 +269,8 @@ def validate_questions_options_data():
         ok_button = Button(error_canvas, image=ok_btn, cursor = "hand2", borderwidth=0, command=error_validator)
         ok_btn_window = error_canvas.create_window(375, 220, anchor="nw", window=ok_button)
 
+    else:
+        return False
 
 window = Tk()
 
@@ -286,6 +311,7 @@ add_questions_button.place(x=1253, y=705)
 
 error_img = PhotoImage(file="images/error2.png")
 ok_btn = PhotoImage(file="images/okbtn.png")
+
 #============================================== FRAME 2 ==================================================#
 # #4a66d3
 bg2_img = PhotoImage(file='images/bgbgbg.png')
@@ -426,7 +452,7 @@ input_correct_option = Entry()
 
 formatted_options_list = []
 
-err_var = 0
+err_var = IntVar()
 
 show_frame(frame1)
 
