@@ -29,7 +29,6 @@ def timer():
         myoptionlabel.destroy()
         completed_session()
 
-
 #*********************** TIMER **************************#
 
 #************** DATABASE DATABASE DATABASE **************#
@@ -58,7 +57,6 @@ def update_score(player_name, game_score):
                     WHERE name = :name""",
                   {'name': player_name, 'score': game_score})
 
-
 # c.execute("""CREATE TABLE QuestionsData(
 #             questions text,
 #             options text,
@@ -77,10 +75,26 @@ def load_questions_options():
 
 #************** DATABASE DATABASE DATABASE **************#
 
+
+#********************* Load Questions Into Lists & Dictionary ************************#
+
 def show_frame(frame):
     frame.tkraise()
     
+def load_questions_options_curr_session():
+    global questions, solutions, answers
+    curr_session = load_questions_options()
+    for curr_data in curr_session:
+        curr_question = curr_data[0]
+        curr_options = eval(curr_data[1])
+        curr_correct_option = curr_data[2]
+        if(curr_question not in questions):
+            questions.append(curr_question)
+            answers.append(curr_options)
+            solutions[curr_question] = curr_correct_option
+
 def submit_form():
+    load_questions_options_curr_session()
     global player_name
     player_name = input_name.get().split()[0]
     player_name = player_name.lower()
@@ -89,7 +103,7 @@ def submit_form():
     load_questions()
 
 def load_questions():
-    global questions_attempted, game_score, mylabel, button, myoptionlabel
+    global questions_attempted, game_score, mylabel, button, myoptionlabel, time_in_sec
     button = Button(frame3, image=next_btn, cursor = "hand2", borderwidth=0, bg="black", command=lambda: var.set(1))
     button.place(x=700, y= 600)
     for question in questions:
@@ -245,7 +259,7 @@ def loop_check():
     get_options = repr(get_options)
     insert_question_options(get_question, get_options, get_correct_option)
     
-    success_mssg_label = Label(my_canvas, text="Question Added Successfully!!!", bg="#5f4bd1", fg="#FFFFFF", font= ("Helvetica", 30,"bold"), anchor="nw")
+    success_mssg_label = Label(my_canvas, text="Question Added Successfully!!!", bg="#5f4bd1", fg="#08ff08", font= ("Helvetica", 30,"bold"), anchor="nw")
     success_mssg_label.place(x=250, y=460)
     success_mssg_label.after(5000, success_mssg_label.destroy)
 
@@ -398,16 +412,17 @@ var = IntVar()
 var2 = StringVar()
 var2.set(' ')
 
+
 questions = ["The ratio of width of our National flag to its length is",
              "The words 'Satyameva Jayate' inscribed below the base plate of the emblem of India are taken from",
              "'Kathakali' is a folk dance prevalent in which state",
              "The last Mahakumbh of the 20th century was held at"]
-
+            
 solutions = {"The ratio of width of our National flag to its length is": "2:3",
              "The words 'Satyameva Jayate' inscribed below the base plate of the emblem of India are taken from": "Mundak Upanishad",
              "'Kathakali' is a folk dance prevalent in which state": "Karnataka",
              "The last Mahakumbh of the 20th century was held at": "Haridwar"}
-
+            
 answers = [["3:5", "2:3", "2:4", "3:4"],["Rigveda", "Satpath Brahmana", "Mundak Upanishad", "Ramayana"],
             ["Karnataka", "Orissa", "Kerala", "Manipur"],["Nasik", "Ujjain", "Allahabad", "Haridwar"]]
 
