@@ -9,6 +9,7 @@ game_score = 0
 questions_attempted = 1
 player_name = ""
 qualifying_score = 2
+errors = None
 
 #*********************** TIMER **************************#
 
@@ -190,7 +191,7 @@ def refresh_session():
     show_frame(frame1)
 
 def add_questions():
-    global input_question, input_options, input_correct_option, my_canvas
+    global input_question, input_options, input_correct_option, my_canvas, submit_btn
     top3 = Toplevel()
     top3.geometry("1100x650")
     my_canvas = Canvas(top3)
@@ -222,7 +223,7 @@ def add_questions():
     exit_btn_window = my_canvas.create_window(1025, 10, anchor="nw", window=form_exit_button)
 
 def handle_questions_options():
-    global get_question, get_options, get_correct_option, my_canvas#, questions, answers, solutions
+    global get_question, get_options, get_correct_option, my_canvas, submit_btn, err_var#, questions, answers, solutions
     get_question = input_question.get()
     get_options = input_options.get().split(",")
     get_correct_option = input_correct_option.get()
@@ -231,23 +232,32 @@ def handle_questions_options():
         formatted_options_list.append(formatted_option)
     get_correct_option = get_correct_option.strip()
 
-    temp_error_evaluator = validate_questions_options_data()
-    if(temp_error_evaluator):
+    validate_questions_options_data()
+
+    # temp_error_evaluator = errors
+def loop_check():
+    global submit_btn, errors, err_var, get_options, get_correct_option, get_question
+    while(errors):
         submit_btn.wait_variable(err_var)
         handle_questions_options()
     
     #CONTINUE FROM HERE - TO FORWARD THE DATA TO RESPECTIVE LISTS AND DICTIONARY AND CLEAR THE PREVIOUS FETCHED DATA
     get_options = repr(get_options)
     insert_question_options(get_question, get_options, get_correct_option)
-    my_canvas.create_text(225, 460, text="Question Added Successfully!!!", font= ("Helvetica", 30,"bold"), fill="#21fc0d", anchor="nw")
     
+    success_mssg_label = Label(my_canvas, text="Question Added Successfully!!!", bg="#5f4bd1", fg="#FFFFFF", font= ("Helvetica", 30,"bold"), anchor="nw")
+    success_mssg_label.place(x=250, y=460)
+    success_mssg_label.after(5000, success_mssg_label.destroy)
+
 def validate_questions_options_data():
-    global get_options, get_correct_option
+    global get_options, get_correct_option, err_var, errors
 
     def error_validator():
+        global errors
         err_var.set(1)
+        errors = True
         top2.destroy()
-        return True
+        loop_check()
 
     if(len(get_options) != 4):
         top2 = Toplevel()
@@ -270,7 +280,8 @@ def validate_questions_options_data():
         ok_btn_window = error_canvas.create_window(375, 220, anchor="nw", window=ok_button)
 
     else:
-        return False
+        errors = False
+        loop_check()
 
 window = Tk()
 
