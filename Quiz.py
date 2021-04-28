@@ -28,7 +28,7 @@ def timer():
         button.destroy()
         myoptionlabel.destroy()
         completed_session()
-
+        
 #*********************** TIMER **************************#
 
 #************** DATABASE DATABASE DATABASE **************#
@@ -106,6 +106,7 @@ def load_questions():
     global questions_attempted, game_score, mylabel, button, myoptionlabel, time_in_sec
     button = Button(frame3, image=next_btn, cursor = "hand2", borderwidth=0, bg="black", command=lambda: var.set(1))
     button.place(x=700, y= 600)
+    random.shuffle(questions)
     for question in questions:
         mylabel = Label(frame3, text=question, anchor=CENTER, font =("times new roman", 18, "bold"), bg= "black", fg= "white", wraplength= 800)
         mylabel.place(x=485, y=225)
@@ -136,7 +137,7 @@ def load_questions():
                         mylabel.destroy()
                         myoptionlabel.destroy()
     button.destroy()
-    completed_session()
+    time_in_sec = 0
 
 def completed_session():
     data_handling()
@@ -479,6 +480,8 @@ input_correct_option = Entry()
 formatted_options_list = []
 
 err_var = IntVar()
+
+t1 = threading.Thread(target=timer)
 
 show_frame(frame1)
 
