@@ -80,7 +80,6 @@ def load_questions_options():
 
 #************** DATABASE DATABASE DATABASE **************#
 
-
 # Function To Raise The Chosen Frame
 def show_frame(frame):
     frame.tkraise()
@@ -147,32 +146,27 @@ def load_questions():
                             button.place(x=700, y= 600)
                         mylabel.destroy()
                         myoptionlabel.destroy()
-    #button.destroy()
+    button.destroy()
     time_in_sec = 0 # To Stop The Timer and Resume The Application Execution Process From Else Part Of The Timer
 
 def completed_session():
     data_handling() # To Push All Data To The Database
     messagebox.showinfo("    Quiz Game", "Quiz Has Finished\n{} you have scored {} out of 4".format(player_name, game_score))
-    global qualify_bg, qualify_ok_btn, qualify_mssg, qualify_fail_mssg
+    global ok_btn, qualify_mssg, qualify_fail_mssg 
     # To Check If Player Has Passed or Failed The Quiz
     if(game_score >= qualifying_score):
         top = Toplevel()
-        top.geometry("800x450")
-        qualify_bg_label = Label(top, image=qualify_bg)
-        qualify_bg_label.pack()
-        qualify_mssg_label = Label(top, image=qualify_mssg, bg="#4e62d2")
-        qualify_mssg_label.place(x=155, y=40)
-        qualify_ok_button = Button(top, image=qualify_ok_btn, cursor="hand2", borderwidth=0, bg="#436fd2", command=top.destroy)
-        qualify_ok_button.place(x=320, y=350)
+        top.geometry("1250x780")
+        qualify_mssg_label = Label(top, image=qualify_mssg)
+        qualify_mssg_label.pack()
+        ok_button = Button(top, image=okbtn, cursor="hand2", borderwidth=0, bg="#000000", command=top.destroy)
+        ok_button.place(x=545, y=675)
     else:
         top = Toplevel()
-        top.geometry("800x450")
-        qualify_bg_label = Label(top, image=qualify_bg)
-        qualify_bg_label.pack()
+        top.geometry("1250x780")
         qualify_mssg_label = Label(top, image=qualify_fail_mssg, bg="#4e62d2")
-        qualify_mssg_label.place(x=155, y=40)
-        qualify_ok_button = Button(top, image=qualify_ok_btn, cursor="hand2", borderwidth=0, bg="#436fd2", command=top.destroy)
-        qualify_ok_button.place(x=320, y=350)
+        qualify_mssg_label.pack()
+        ok_button = Button(top, image=okbtn, cursor="hand2", borderwidth=0, bg="#000000", command=top.destroy) #, bg="#436fd2"
     show_frame(frame4)
 
 def data_handling():
@@ -216,7 +210,6 @@ def load_highscores(frame):
 def refresh_session():
     global player_name, game_score, time_in_sec, input_name
     questions_attempted = 1
-    #player_name = ""
     input_name.delete(0, 'end')
     txt_mail.delete(0, 'end')
     txt_contact.delete(0, 'end')
@@ -336,7 +329,7 @@ window.state('zoomed')
 
 window.title("    Quiz Game")
 
-window.iconbitmap('images\quiz.ico')
+window.iconbitmap('images/MultiUse Images/quiz.ico')
 
 window.rowconfigure(0, weight=1)
 window.columnconfigure(0, weight=1)
@@ -351,32 +344,32 @@ for frame in (frame1, frame2, frame3, frame4, frame5):
 
 #============================================== FRAME 1 ==================================================#
 
-bg_img = PhotoImage(file="images/bghome.png")
+bg_img = PhotoImage(file="images/Home Page/bghome.png")
 my_label =  Label(frame1, image=bg_img)
 my_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-start_btn = PhotoImage(file='images/bgFormplay.png')
+start_btn = PhotoImage(file='images/Home Page/bgFormplay.png')
 play_button = Button(frame1, image=start_btn, cursor = "hand2", borderwidth=0, bg="#5f4bd1", command=lambda:show_frame(frame2))
 play_button.pack(side="bottom", pady=50)
 
-exit_btn = PhotoImage(file='images/exitForm.png')
+exit_btn = PhotoImage(file='images/MultiUse Images/exitForm.png')
 exit_button = Button(frame1, image=exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2", command=window.destroy)
 exit_button.pack(padx=30, pady=30, anchor="ne")
 
-add_questions_btn = PhotoImage(file="images/addQuestionsbtn10.png")
+add_questions_btn = PhotoImage(file="images/AddQuestions Page/addQuestionsbtn.png")
 add_questions_button = Button(frame1, image=add_questions_btn, cursor = "hand2", borderwidth=0, bg="#9400d4", command=add_questions)
 add_questions_button.place(x=1253, y=705)
 
-error_img = PhotoImage(file="images/error2.png")
-ok_btn = PhotoImage(file="images/okbtn.png")
+error_img = PhotoImage(file="images/AddQuestions Page/error2.png")
+ok_btn = PhotoImage(file="images/AddQuestions Page/okbtn.png")
 
 #============================================== FRAME 2 ==================================================#
-# #4a66d3
-bg2_img = PhotoImage(file='images/bgbgbg.png')
+
+bg2_img = PhotoImage(file='images/UserDetails Page/bgbgbg.png')
 my_label2 = Label(frame2, image=bg2_img)
 my_label2.place(x=0, y=0, relwidth=1, relheight=1)
 
-form = PhotoImage(file="images/bgForm3.png")
+form = PhotoImage(file="images/UserDetails Page/bgForm3.png")
 form_label = Label(frame2, image=form)
 form_label.place(x=475, y=170, width=135, height=180)
 
@@ -388,7 +381,7 @@ input_name = Entry(frame2, font= ("times new roman", 14),bg="#8319d3", fg="#ffff
 input_name.config(highlightbackground="#74159d", highlightcolor="#74159d")
 input_name.place(x=650, y=205, width=270)
 
-form_exit_btn = PhotoImage(file="images/exitForm.png")
+form_exit_btn = PhotoImage(file="images/MultiUse Images/exitForm.png")
 form_exit_button = Button(frame2, image=form_exit_btn, cursor = "hand2", borderwidth=0, bg="#683ed2", command=lambda:show_frame(frame1))
 form_exit_button.pack(padx=30, pady=30, anchor="ne")
 
@@ -412,20 +405,18 @@ combo_stream['values'] = ("Select your Stream", "Comps", "IT", "Extc", "Mechanic
 combo_stream.place(x=650, y=460, width=270)
 combo_stream.current(0)
 
-form_start_btn = PhotoImage(file="images/bgFormplay.png")
-
-form_start_button = Button(frame2, image=form_start_btn, cursor = "hand2", borderwidth=0, bg="#5f4bd1", command=submit_form)
+form_start_button = Button(frame2, image=start_btn, cursor = "hand2", borderwidth=0, bg="#5f4bd1", command=submit_form)
 form_start_button.pack(side="bottom", pady=50)
 
 #============================================== FRAME 3 ==================================================#
 
-quiz_bg_img = PhotoImage(file="images/finalquizbg.png")
+quiz_bg_img = PhotoImage(file="images/Quiz Page/finalquizbg.png")
 img_label = Label(frame3, image=quiz_bg_img)
 img_label.place(x=0, y=0, relheight=1,relwidth=1)
 
 # NEXT BUTTON & FINISH BUTTON
-next_btn = PhotoImage(file="images/nextF3.png")
-finish_btn = PhotoImage(file="images/finishF2.png")
+next_btn = PhotoImage(file="images/Quiz Page/nextF3.png")
+finish_btn = PhotoImage(file="images/Quiz Page/finishF2.png")
 
 # Label for Questions
 mylabel = Label()
@@ -460,39 +451,37 @@ answers = [["3:5", "2:3", "2:4", "3:4"],["Rigveda", "Satpath Brahmana", "Mundak 
 
 #============================================== FRAME 4 ==================================================#
 
-score_bg_img = PhotoImage(file="images/quizscorebg.png")
+score_bg_img = PhotoImage(file="images/Last Page/quizscorebg.png")
 
 score_img_label = Label(frame4, image=score_bg_img, width=1920)
 score_img_label.place(x=0, y=0, relheight=1,relwidth=1)
 
-bact_to_home_btn = PhotoImage(file="images/backtohome.png")
-bact_to_home_button = Button(frame4, image=bact_to_home_btn, cursor = "hand2", borderwidth=0, command=refresh_session)
-bact_to_home_button.place(x=700 , y=250)
+bact_to_home_btn = PhotoImage(file="images/Last Page/PlayAgain.png")
+bact_to_home_button = Button(frame4, image=bact_to_home_btn, bg="#f8f8f8", cursor = "hand2", borderwidth=0, command=refresh_session)
+bact_to_home_button.place(x=500 , y=50)
 
-view_highscore_btn = PhotoImage(file="images/Highscore.png")
-view_highscore_button = Button(frame4, image=view_highscore_btn, cursor = "hand2", borderwidth=0, command=lambda:load_highscores(frame5))
-view_highscore_button.place(x=700 , y=475)
+view_highscore_btn = PhotoImage(file="images/Last Page/Highscore2.png")
+view_highscore_button = Button(frame4, image=view_highscore_btn, bg="#f8f8f8", cursor = "hand2", borderwidth=0, command=lambda:load_highscores(frame5))
+view_highscore_button.place(x=500 , y=400)
 
 #============================================== FRAME 5 ==================================================#
 
-last_page_bg = PhotoImage(file="images/quizscorebg.png")
-last_page_bg_label = Label(frame5, image=last_page_bg, width=1920)
+last_page_bg_label = Label(frame5, image=score_bg_img, width=1920)
 last_page_bg_label.place(x=0, y=0, relheight=1,relwidth=1)
 
-highscore_exit_btn = PhotoImage(file="images/bg1exit.png")
+highscore_exit_btn = PhotoImage(file="images/Last Page/bg1exit.png")
 highscore_exit_button = Button(frame5, image=highscore_exit_btn, cursor = "hand2", borderwidth=0, bg="white", command=refresh_session)
 highscore_exit_button.pack(padx=30, pady=30, anchor="ne")
 
 #============================================== FRAME 6 ==================================================#
 
-qualify_bg = PhotoImage(file="images/qualify_background.png")
-qualify_ok_btn = PhotoImage(file="images/qualify_btn7.png")
-qualify_mssg = PhotoImage(file="images/qualify_mssg.png")
-qualify_fail_mssg = PhotoImage(file="images/qualify_failmssg.png")
+okbtn = PhotoImage(file="images/QualifyingMessage Page/okbtn2.png")
+qualify_mssg = PhotoImage(file="images/QualifyingMessage Page/qualify_mssg2.png")
+qualify_fail_mssg = PhotoImage(file="images/QualifyingMessage Page/qualify_failmssg2.png")
 
 #============================================== ADD QUESTION CANVAS ==================================================#
-add_questions_bg = PhotoImage(file="images/addQuestionbg.png")
-submit_btn_img = PhotoImage(file="images/submitbtn.png")
+add_questions_bg = PhotoImage(file="images/AddQuestions Page/addQuestionbg.png")
+submit_btn_img = PhotoImage(file="images/AddQuestions Page/submitbtn.png")
 
 submit_btn = Button()
 
