@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import random # For randomizing the sequence in which questions are asked and their options are displayed
 import sqlite3 # For maintaining the data of playername and their scores, adding questions & options in database
+import _pickle as cPickle
 
 game_score = 0
 player_name = ""
@@ -100,7 +101,9 @@ def load_questions_options_curr_session():
     curr_session = load_questions_options()
     for curr_data in curr_session:
         curr_question = curr_data[0]
-        curr_options = eval(curr_data[1])       
+        # curr_options = eval(curr_data[1])
+        curr_options = cPickle.loads(curr_data[1])
+        print(curr_options)
         curr_correct_option = curr_data[2]
         
         if(curr_question not in questions):
@@ -114,8 +117,9 @@ def load_questions():
     button = Button(frame3, image=next_btn, cursor = "hand2", borderwidth=0, bg="black", command=lambda: var.set(1)) # Next Button
     button.place(x=700, y= 600)
     random.shuffle(questions) # Shuffling Questions Sequence
-    curr_sesh_questions = questions[0:4] # To load Only 4 Questions For Current Session
-    for question in curr_sesh_questions:
+    # curr_sesh_questions = questions[0:4] # To load Only 4 Questions For Current Session
+    # for question in curr_sesh_questions:
+    for question in questions:
         mylabel = Label(frame3, text=question, anchor=CENTER, font =("times new roman", 18, "bold"), bg= "black", fg= "white", wraplength= 800)
         mylabel.place(x=485, y=225)
         for value,key in solutions.items():
@@ -254,13 +258,15 @@ def add_questions():
 # To Extract Questions & Options From Entrybox
 def handle_questions_options():
     global get_question, get_options, get_correct_option, my_canvas, submit_btn, err_var
-    get_question = input_question.get()
+    get_question = input_question.get().strip()
     get_options = input_options.get().split(",")
     get_correct_option = input_correct_option.get()
     # To Remove Whitespaces if any from options
     for option in get_options:
         formatted_option = option.strip()
+        # print(formatted_option)
         formatted_options_list.append(formatted_option)
+        # print(formatted_options_list)
     get_correct_option = get_correct_option.strip()
 
     # Error Checking Function Call
@@ -274,8 +280,9 @@ def loop_check():
         handle_questions_options()
     
     # Converting List Consisting Of Options Into String To Push it Into The Database
-    get_options = repr(get_options)
-    
+    # get_options = str(get_options)
+    get_options = cPickle.dumps(formatted_options_list)
+
     # Adding Data To Database
     insert_question_options(get_question, get_options, get_correct_option)
     
